@@ -35,9 +35,9 @@ public final class IBeacon extends BaseBleBeacon {
         mGroup = group;
         mTag = tag;
         mType = BEACON_IBEACON;
-        iBeaconData.mUuid = region.getId1().toString();
-        iBeaconData.mMajor = region.getId2().toString();
-        iBeaconData.mMinor = region.getId3().toString();
+        iBeaconData.mUuid = region.getId1().toUuidString();
+        iBeaconData.mMajor = Integer.toString(region.getId2().toInt());
+        iBeaconData.mMinor = Integer.toString(region.getId3().toInt());
         mBluetoothAddress = region.getBluetoothAddress();
     }
 

@@ -77,11 +77,11 @@ public class NewBeaconAdapter extends RecyclerView.Adapter<NewBeaconAdapter.Beac
 
         if (IBeacon.BEACON_IBEACON.equals(Helper.getBleBeaconString(beacon))) {
             beaconViewHolder.uuid.setText(activityContext
-                    .getString(R.string.card_text_uuid, beacon.getId1().toString()));
+                    .getString(R.string.card_text_uuid, beacon.getId1().toUuidString()));
             beaconViewHolder.major.setText(activityContext
-                    .getString(R.string.card_text_major, beacon.getId2().toString()));
+                    .getString(R.string.card_text_major, Integer.toString(beacon.getId2().toInt())));
             beaconViewHolder.minor.setText(activityContext
-                    .getString(R.string.card_text_minor, beacon.getId3().toString()));
+                    .getString(R.string.card_text_minor, Integer.toString(beacon.getId3().toInt())));
             beaconViewHolder.ibeaconView.setVisibility(View.VISIBLE);
         }
 
@@ -92,9 +92,9 @@ public class NewBeaconAdapter extends RecyclerView.Adapter<NewBeaconAdapter.Beac
                 TransactionBeacon transactionBeacon = new TransactionBeacon();
 
                 transactionBeacon.setType(IBeacon.BEACON_IBEACON);
-                transactionBeacon.setUuid(beacon.getId1().toString());
-                transactionBeacon.setMajor(beacon.getId2().toString());
-                transactionBeacon.setMinor(beacon.getId3().toString());
+                transactionBeacon.setUuid(beacon.getId1().toUuidString());
+                transactionBeacon.setMajor(Integer.toString(beacon.getId2().toInt()));
+                transactionBeacon.setMinor(Integer.toString(beacon.getId3().toInt()));
                 transactionBeacon.setMacAddress(beacon.getBluetoothAddress());
 
                 application.getBeaconFactory().setTransactionBeacon(transactionBeacon);
