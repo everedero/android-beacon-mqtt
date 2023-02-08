@@ -6,6 +6,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import org.altbeacon.beacon.Beacon;
 import org.turbo.beaconmqtt.BeaconApplication;
 import org.turbo.beaconmqtt.R;
+import org.turbo.beaconmqtt.beacon.BroodminderBeacon;
 import org.turbo.beaconmqtt.beacon.Helper;
 import org.turbo.beaconmqtt.beacon.IBeacon;
 import org.turbo.beaconmqtt.beacon.TransactionBeacon;
@@ -90,19 +92,30 @@ public class NewBeaconAdapter extends RecyclerView.Adapter<NewBeaconAdapter.Beac
             public void onClick(View v) {
                 BeaconApplication application = (BeaconApplication) applicationContext;
                 TransactionBeacon transactionBeacon = new TransactionBeacon();
+                if (beacon.getBeaconTypeCode() == BroodminderBeacon.TYPECODE) {
+                    Log.d("ONCLICK", "Found Broodminder");
+                    transactionBeacon.setType(BroodminderBeacon.BROODMINDER_BEACON);
+                    transactionBeacon.setMinor(beacon.getId1().toString());
+                    transactionBeacon.setMajor(beacon.getId2().toString());
+                    transactionBeacon.setMacAddress(beacon.getBluetoothAddress());
+                    application.getBeaconFactory().setTransactionBeacon(transactionBeacon);
 
-                transactionBeacon.setType(IBeacon.BEACON_IBEACON);
-                transactionBeacon.setUuid(beacon.getId1().toString());
-                transactionBeacon.setMajor(beacon.getId2().toString());
-                transactionBeacon.setMinor(beacon.getId3().toString());
-                transactionBeacon.setMacAddress(beacon.getBluetoothAddress());
+                } else if (beacon.getBeaconTypeCode() == IBeacon.TYPECODE) {
+                    Log.d("ONCLICK", "Found ibeacon");
 
-                application.getBeaconFactory().setTransactionBeacon(transactionBeacon);
+                    transactionBeacon.setType(IBeacon.BEACON_IBEACON);
+                    transactionBeacon.setUuid(beacon.getId1().toString());
+                    transactionBeacon.setMajor(beacon.getId2().toString());
+                    transactionBeacon.setMinor(beacon.getId3().toString());
+                    transactionBeacon.setMacAddress(beacon.getBluetoothAddress());
+                }
 
-                BaseBeaconDialogFragment newFragment = BaseBeaconDialogFragment
-                        .newInstance(null);
-                newFragment.show(((AppCompatActivity) activityContext).getSupportFragmentManager(),
-                        "BaseBeaconDialog");
+                    application.getBeaconFactory().setTransactionBeacon(transactionBeacon);
+
+                    BaseBeaconDialogFragment newFragment = BaseBeaconDialogFragment
+                            .newInstance(null);
+                    newFragment.show(((AppCompatActivity) activityContext).getSupportFragmentManager(),
+                            "BaseBeaconDialog");
             }
         });
     }

@@ -79,6 +79,8 @@ public abstract class BaseBroadcaster {
                 String.format(Locale.getDefault(), "%d", beacon.getRssi()));
         string = string.replaceAll("%distance%",
                 String.format(Locale.getDefault(), "%.1f", beacon.getDistance()));
+        string = string.replaceAll("%msg%",
+                String.format(Locale.getDefault(), "%s", beacon.getStringData()));
         return string;
     }
 }

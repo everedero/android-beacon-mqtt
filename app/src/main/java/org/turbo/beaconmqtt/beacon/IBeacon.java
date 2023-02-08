@@ -10,6 +10,7 @@ import org.altbeacon.beacon.Region;
 public final class IBeacon extends BaseBleBeacon {
     public final static String BEACON_LAYOUT = "m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25";
     public final static String BEACON_IBEACON = "iBeacon";
+    public final static Integer TYPECODE = 0x4C000215;
     @Expose
     private final IBeaconData iBeaconData = new IBeaconData();
 

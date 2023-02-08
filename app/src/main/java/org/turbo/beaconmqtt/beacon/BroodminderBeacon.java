@@ -8,8 +8,9 @@ import com.google.gson.annotations.SerializedName;
 import org.altbeacon.beacon.Region;
 
 public final class BroodminderBeacon extends BaseBleBeacon {
-    public final static String BEACON_LAYOUT = "m:0-2=8d022b,i:3-4,d:5-8,d:9-12,d:13-16,d:17-20,d:21-22";
+    public final static String BEACON_LAYOUT = "m:0-2=8d022b,i:3-3,i:4-4,d:5-8,d:9-12,d:13-16,d:17-20,d:21-21,p:22-22";
     public final static String BROODMINDER_BEACON = "BroodminderBeacon";
+    public final static Integer TYPECODE = 0x8D022B;
     @Expose
     private final BroodminderBeaconData broodminderBeaconData = new BroodminderBeaconData();
 
@@ -61,8 +62,8 @@ public final class BroodminderBeacon extends BaseBleBeacon {
 
     public boolean isValid() {
         boolean isValid = super.isValid();
-        isValid &= Helper.validateInt(broodminderBeaconData.mMajor, 1, 255);
-        isValid &= Helper.validateInt(broodminderBeaconData.mMinor, 1, 255);
+        isValid &= Helper.validateInt(broodminderBeaconData.mMajor, 0, 255);
+        isValid &= Helper.validateInt(broodminderBeaconData.mMinor, 0, 255);
         isValid &= Helper.validateMacAddress(mBluetoothAddress);
         return isValid;
     }

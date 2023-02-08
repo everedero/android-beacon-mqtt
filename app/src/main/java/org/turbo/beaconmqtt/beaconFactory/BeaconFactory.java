@@ -37,6 +37,7 @@ import org.turbo.beaconmqtt.MainActivity;
 import org.turbo.beaconmqtt.R;
 import org.turbo.beaconmqtt.beacon.BaseBeacon;
 import org.turbo.beaconmqtt.beacon.BaseBleBeacon;
+import org.turbo.beaconmqtt.beacon.BroodminderBeacon;
 import org.turbo.beaconmqtt.beacon.IBeacon;
 import org.turbo.beaconmqtt.beacon.TransactionBeacon;
 import org.turbo.beaconmqtt.beacon.WifiBeacon;
@@ -177,6 +178,14 @@ public class BeaconFactory implements BootstrapNotifier, WifiChangeListener {
             beaconList.add(iBeacon);
             if (startWatching && iBeacon.isValid()) {
                 startWatchingForBleBeacon(iBeacon);
+            }
+        } else if (beacon instanceof BroodminderBeacon) {
+            BroodminderBeacon broodminderBeacon = new BroodminderBeacon(beacon.getId(), beacon.getGroup(), beacon.getTag(),
+                    beacon.getMajor(), beacon.getMinor(), beacon.getMacAddress());
+            broodminderBeacon.setBeaconFactory(this);
+            beaconList.add(broodminderBeacon);
+            if (startWatching && broodminderBeacon.isValid()) {
+                startWatchingForBleBeacon(broodminderBeacon);
             }
         } else if (beacon instanceof WifiBeacon) {
             WifiBeacon wifiBeacon = new WifiBeacon(beacon.getId(), beacon.getGroup(), beacon.getTag(),
@@ -342,7 +351,19 @@ public class BeaconFactory implements BootstrapNotifier, WifiChangeListener {
         }
         return null;
     }
-
+    public BroodminderBeacon getBroodminderBeaconByMMM(String major, String minor, String macAddress) {
+        for (BaseBeacon beacon : beaconList) {
+            if (beacon instanceof BroodminderBeacon && beacon.isValid()) {
+                if (
+                        beacon.getMajor().equals(major) &&
+                        beacon.getMinor().equals(minor) &&
+                        beacon.getMacAddress().equals(macAddress)) {
+                    return (BroodminderBeacon) beacon;
+                }
+            }
+        }
+        return null;
+    }
     @SuppressWarnings("unused")
     public IBeacon getIBeaconById(String id) {
         for (BaseBeacon beacon : beaconList) {
@@ -430,8 +451,10 @@ public class BeaconFactory implements BootstrapNotifier, WifiChangeListener {
         ArrayList<Region> regions = new ArrayList<>();
 
         beaconManager.getBeaconParsers().clear();
-        beaconManager.getBeaconParsers().add(new BeaconParser().
+        beaconManager.getBeaconParsers().add(new BeaconParser("ibeacon").
                 setBeaconLayout(IBeacon.BEACON_LAYOUT));
+        beaconManager.getBeaconParsers().add(new BeaconParser("broodminder").
+                setBeaconLayout(BroodminderBeacon.BEACON_LAYOUT));
         // TODO: Add other layouts here
 
         if (BuildConfig.DEBUG) {
@@ -465,7 +488,7 @@ public class BeaconFactory implements BootstrapNotifier, WifiChangeListener {
         beaconManager.addRangeNotifier(new RangeNotifier() {
             @Override
             public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
-                Log.d(TAG, "Called didRangeBeaconsInRegion() for " + region.getUniqueId());
+                Log.d(TAG, "Called didRangeBeaconsInRegion() for " + region.getUniqueId().toString());
                 BaseBleBeacon bleBeacon = getBleBeaconById(region.getUniqueId());
 
                 if (bleBeacon != null) {
@@ -526,7 +549,20 @@ public class BeaconFactory implements BootstrapNotifier, WifiChangeListener {
                                 ids);
                         regions.add(region);
                     }
+                } else if (beacon instanceof BroodminderBeacon) {
+                    Log.i(TAG, "Broodminder found! id=" + beacon.getId());
+                    List<Identifier> ids = new ArrayList<>();
+                    ids.add(Identifier.parse(beacon.getMajor()));
+                    ids.add(Identifier.parse(beacon.getMinor()));
+                    Region region = new Region(beacon.getId(),
+                            ids);
+                    regions.add(region);
                 }
+                else {
+                    Log.d(TAG, "Beacon is of undeterminate type " + beacon.getType() +
+                            " ID " + beacon.getId());
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -743,6 +779,9 @@ public class BeaconFactory implements BootstrapNotifier, WifiChangeListener {
             addBeacon(new IBeacon(transactionBeacon), true, true);
         } else if (transactionBeacon.getType().equals(WifiBeacon.BEACON_WIFI)) {
             addBeacon(new WifiBeacon(transactionBeacon), true, true);
+        } else if (transactionBeacon.getType().equals(BroodminderBeacon.BROODMINDER_BEACON)) {
+            Log.d(TAG, "In Factory, moving transaction Beacon to real Broodminder beacon");
+            addBeacon(new BroodminderBeacon(transactionBeacon), true, true);
         }
     }
 
@@ -752,6 +791,9 @@ public class BeaconFactory implements BootstrapNotifier, WifiChangeListener {
             changeBeacon(id, beacon);
         } else if (transactionBeacon.getType().equals(WifiBeacon.BEACON_WIFI)) {
             WifiBeacon beacon = new WifiBeacon(transactionBeacon);
+            changeBeacon(id, beacon);
+        } else if (transactionBeacon.getType().equals(BroodminderBeacon.BROODMINDER_BEACON)) {
+            BroodminderBeacon beacon = new BroodminderBeacon(transactionBeacon);
             changeBeacon(id, beacon);
         }
     }
@@ -765,10 +807,14 @@ public class BeaconFactory implements BootstrapNotifier, WifiChangeListener {
             Region region;
             List<Identifier> ids = new ArrayList<>();
 
-            // TODO: if (beacon instanceof ZZZ)
-            ids.add(Identifier.parse(beacon.getUuid()));
-            ids.add(Identifier.parse(beacon.getMajor()));
-            ids.add(Identifier.parse(beacon.getMinor()));
+            if (beacon instanceof IBeacon) {
+                ids.add(Identifier.parse(beacon.getUuid()));
+                ids.add(Identifier.parse(beacon.getMajor()));
+                ids.add(Identifier.parse(beacon.getMinor()));
+            } else if (beacon instanceof BroodminderBeacon) {
+                ids.add(Identifier.parse(beacon.getMajor()));
+                ids.add(Identifier.parse(beacon.getMinor()));
+            }
 
             if (beacon.getMacAddress().length() > 0) {
                 region = new Region(beacon.getId(), ids, beacon.getMacAddress());
@@ -794,10 +840,14 @@ public class BeaconFactory implements BootstrapNotifier, WifiChangeListener {
             Region region;
             List<Identifier> ids = new ArrayList<>();
 
-            // TODO: if (beacon instanceof ZZZ)
-            ids.add(Identifier.parse(beacon.getUuid()));
-            ids.add(Identifier.parse(beacon.getMajor()));
-            ids.add(Identifier.parse(beacon.getMinor()));
+            if (beacon instanceof IBeacon) {
+                ids.add(Identifier.parse(beacon.getUuid()));
+                ids.add(Identifier.parse(beacon.getMajor()));
+                ids.add(Identifier.parse(beacon.getMinor()));
+            } else if (beacon instanceof BroodminderBeacon) {
+                ids.add(Identifier.parse(beacon.getMajor()));
+                ids.add(Identifier.parse(beacon.getMinor()));
+            }
 
             if (beacon.getMacAddress().length() > 0) {
                 region = new Region(beacon.getId(), ids, beacon.getMacAddress());

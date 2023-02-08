@@ -21,6 +21,7 @@ import com.rengwuxian.materialedittext.validation.METValidator;
 
 import org.turbo.beaconmqtt.BeaconApplication;
 import org.turbo.beaconmqtt.R;
+import org.turbo.beaconmqtt.beacon.BroodminderBeacon;
 import org.turbo.beaconmqtt.beacon.Helper;
 import org.turbo.beaconmqtt.beacon.IBeacon;
 import org.turbo.beaconmqtt.beacon.TransactionBeacon;
@@ -117,6 +118,11 @@ public class BaseBeaconDialogFragment extends DialogFragment {
                                     .newInstance(beaconId);
                             newFragment.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(),
                                     "WifiBeaconDialog");
+                        } else if (BroodminderBeacon.BROODMINDER_BEACON.equals(beaconType)) {
+                            IBeaconDialogFragment newFragment = IBeaconDialogFragment
+                                    .newInstance(beaconId);
+                            newFragment.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(),
+                                    "BroodminderBeaconDialog");
                         }
                     }
                 })
@@ -139,6 +145,32 @@ public class BaseBeaconDialogFragment extends DialogFragment {
                         } else if (IBeacon.BEACON_IBEACON.equals(beaconType)) {
                             IBeacon counterpart = application.getBeaconFactory()
                                     .getIBeaconByUMMM(transactionBeacon.getUuid(),
+                                            transactionBeacon.getMajor(),
+                                            transactionBeacon.getMinor(),
+                                            transactionBeacon.getMacAddress());
+
+                            // The same beacon
+                            if (counterpart != null && counterpart.getId().equals(beaconId)) {
+                                counterpart = null;
+                            }
+
+                            // Hmm... We have counterpart!
+                            if (counterpart != null) {
+                                final AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getContext());
+                                builder.setTitle(getString(R.string.error));
+                                builder.setMessage(getString(R.string.beacon_with_the_same_parameters_already_exists,
+                                        counterpart.getId()));
+                                builder.setPositiveButton(R.string.close, null);
+                                builder.show();
+                            } else if (beaconId == null) {
+                                application.getBeaconFactory().insertBeaconFromTransaction();
+                                Objects.requireNonNull(getActivity()).finish();
+                            } else {
+                                application.getBeaconFactory().updateBeaconFromTransaction(beaconId);
+                            }
+                        } else if (BroodminderBeacon.BROODMINDER_BEACON.equals(beaconType)) {
+                            BroodminderBeacon counterpart = application.getBeaconFactory()
+                                    .getBroodminderBeaconByMMM(
                                             transactionBeacon.getMajor(),
                                             transactionBeacon.getMinor(),
                                             transactionBeacon.getMacAddress());
