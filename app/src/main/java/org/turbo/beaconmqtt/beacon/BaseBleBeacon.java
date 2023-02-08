@@ -18,6 +18,7 @@ public abstract class BaseBleBeacon extends BaseBeacon {
         see();
         mDistance = beacon.getDistance();
         mRssi = beacon.getRssi();
+        mData = beacon.getDataFields();
         changeBeaconNotifyListeners();
     }
 

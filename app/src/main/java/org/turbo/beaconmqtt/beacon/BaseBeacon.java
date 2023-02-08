@@ -13,6 +13,7 @@ import org.joda.time.Seconds;
 import org.turbo.beaconmqtt.R;
 import org.turbo.beaconmqtt.beaconFactory.BeaconFactory;
 
+import java.util.List;
 import java.util.Locale;
 
 import static org.turbo.beaconmqtt.beacon.Helper.BeaconState;
@@ -35,6 +36,9 @@ public abstract class BaseBeacon {
     @Expose
     @SerializedName("type")
     String mType;
+    @Expose
+    @SerializedName("data")
+    List<Long> mData;
     int mRssi;
     private BeaconFactory beaconFactory = null;
     private int mIndex;
@@ -52,6 +56,16 @@ public abstract class BaseBeacon {
             this.mId = id;
             changeBeaconNotifyListeners();
         }
+    }
+
+    public List<Long> getData() { return mData;}
+
+    public String getStringData() {
+        String myString = "";
+        for (Long lng : mData) {
+            myString += (Long.toHexString(lng));
+        }
+        return myString;
     }
 
     public String getGroup() {

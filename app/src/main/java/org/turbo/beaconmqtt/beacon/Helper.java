@@ -50,6 +50,12 @@ public class Helper {
         return pattern.matcher(uuid).matches();
     }
 
+    public static boolean validateHexDataString(String data) {
+        if (data == null) return false;
+        final Pattern pattern = Pattern.compile("^[0-9a-zA-Z]*$");
+        return pattern.matcher(data).matches();
+    }
+
     public static boolean validateInt(String string, int min, int max) {
         try {
             int value = parseInt(string);
