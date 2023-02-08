@@ -95,8 +95,8 @@ public class NewBeaconAdapter extends RecyclerView.Adapter<NewBeaconAdapter.Beac
                 if (beacon.getBeaconTypeCode() == BroodminderBeacon.TYPECODE) {
                     Log.d("ONCLICK", "Found Broodminder");
                     transactionBeacon.setType(BroodminderBeacon.BROODMINDER_BEACON);
-                    transactionBeacon.setMinor(beacon.getId1().toString());
-                    transactionBeacon.setMajor(beacon.getId2().toString());
+                    transactionBeacon.setMinor(Integer.toString(beacon.getId1().toInt()));
+                    transactionBeacon.setMajor(Integer.toString(beacon.getId2().toInt()));
                     transactionBeacon.setMacAddress(beacon.getBluetoothAddress());
                     application.getBeaconFactory().setTransactionBeacon(transactionBeacon);
 

@@ -35,8 +35,8 @@ public final class BroodminderBeacon extends BaseBleBeacon {
         mGroup = group;
         mTag = tag;
         mType = BROODMINDER_BEACON;
-        broodminderBeaconData.mMajor = region.getId1().toString();
-        broodminderBeaconData.mMinor = region.getId2().toString();
+        broodminderBeaconData.mMajor = Integer.toString(region.getId1().toInt());
+        broodminderBeaconData.mMinor = Integer.toString(region.getId2().toInt());
         mBluetoothAddress = region.getBluetoothAddress();
     }
 
