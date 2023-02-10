@@ -844,16 +844,23 @@ public class BeaconFactory implements BootstrapNotifier, WifiChangeListener {
                 ids.add(Identifier.parse(beacon.getUuid()));
                 ids.add(Identifier.parse(beacon.getMajor()));
                 ids.add(Identifier.parse(beacon.getMinor()));
+
+                if (beacon.getMacAddress().length() > 0) {
+                    region = new Region(beacon.getId(), ids, beacon.getMacAddress());
+                } else {
+                    region = new Region(beacon.getId(), ids);
+                }
+
             } else if (beacon instanceof BroodminderBeacon) {
-                ids.add(Identifier.parse(beacon.getMajor()));
-                ids.add(Identifier.parse(beacon.getMinor()));
+                ids.add(Identifier.parse(beacon.getMajor(), 1));
+                ids.add(Identifier.parse(beacon.getMinor(), 1));
+                //region = new Region(beacon.getId(), ids);
+                region = new Region(beacon.getId(), beacon.getMacAddress());
+            } else {
+                region = new Region(beacon.getId(), beacon.getMacAddress());
             }
 
-            if (beacon.getMacAddress().length() > 0) {
-                region = new Region(beacon.getId(), ids, beacon.getMacAddress());
-            } else {
-                region = new Region(beacon.getId(), ids);
-            }
+
 
             beaconManager.startRangingBeaconsInRegion(region);
             beaconManager.startMonitoringBeaconsInRegion(region);

@@ -52,7 +52,7 @@
     <string name="pref_message_beacon_hysteresis_factor">Prevents the flapping of master status between equidistance beacons. To pick up the master role a beacon must be X times closer than the current master beacon.\nValid range: 1.0 &#8230; 5. Default: 1.5</string>
     <string name="pref_message_invalid_value">The value should be in range of %s</string>
     <string name="pref_message_static_tokens_description">Tokens available:\n\t• Beacon’s name - %beacon%\n\t• Beacon’s group: - %group%\n\t• Beacon’s tag - %tag%\n\t• Beacon’s state: - %state%\n\t• Phone’s MAC address: - %mac%</string>
-    <string name="pref_message_static_and_dynamic_tokens_description">Tokens available:\n\t• Beacon’s name - %beacon%\n\t• Beacon’s group: - %group%\n\t• Beacon’s tag - %tag%\n\t• Beacon’s state: - %state%\n\t• Phone’s MAC address: - %mac%\n\t• Beacon’s RSSI (dBm) - %rssi%\n\t• Distance to beacon (meters): - %distance%\n</string>
+    <string name="pref_message_static_and_dynamic_tokens_description">Tokens available:\n\t• Beacon’s name - %beacon%\n\t• Beacon’s group: - %group%\n\t• Beacon’s tag - %tag%\n\t• Beacon’s state: - %state%\n\t• Phone’s MAC address: - %mac%\n\t• Beacon’s RSSI (dBm) - %rssi%\n\t• Distance to beacon (meters): - %distance%\n\t• Beacon payload data (bytes): - %msg%\n</string>
 
     <!-- Related to Ranging Activity -->
     <string name="ranging_title">Add beacon</string>>
